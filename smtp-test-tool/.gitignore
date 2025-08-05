@@ -1,0 +1,135 @@
+# SMTP Test Tool - .gitignore
+
+# Environment configuration
+.env
+.env.local
+.env.production
+.env.staging
+.env.backup
+
+# Configuration files with sensitive data
+src/Config/config.php
+
+# Composer dependencies
+/vendor/
+composer.lock
+
+# Logs
+/logs/*.log
+/logs/*.txt
+/logs/application.log*
+/logs/error.log*
+/logs/access.log*
+
+# Cache and temporary files
+/cache/
+/tmp/
+*.tmp
+*.temp
+*.cache
+
+# Session files
+/sessions/
+session_*
+
+# Database backups and dumps
+*.sql
+*.dump
+backup.sql
+database_backup_*
+
+# IDE and Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# PHP specific
+*.log
+*.cache
+.phpunit.result.cache
+phpunit.xml
+
+# Node.js (if using any frontend build tools)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+
+# Build and distribution files
+/dist/
+/build/
+/public/build/
+
+# Uploads and user generated content
+/uploads/
+/attachments/
+/public/uploads/
+
+# Test files and coverage
+/tests/coverage/
+/coverage/
+phpunit.xml
+.phpunit.result.cache
+
+# Security and sensitive files
+.htpasswd
+.htaccess
+private_key.pem
+public_key.pem
+*.key
+*.pem
+*.crt
+*.csr
+
+# Backup files
+*.bak
+*.backup
+*.old
+*~
+
+# Archive files
+*.zip
+*.tar
+*.tar.gz
+*.rar
+
+# Local development files
+local_config.php
+debug.php
+test.php
+playground.php
+
+# Documentation build files
+/docs/_build/
+/docs/.doctrees/
+
+# Package files
+*.deb
+*.rpm
+
+# Installation files (after installation)
+# Uncomment the line below after completing installation
+# public/install.php
+
+# Email templates with sensitive content
+# Uncomment if you have sensitive email templates
+# /templates/sensitive/
+
+# Custom ignore patterns
+# Add your project-specific ignores below this line

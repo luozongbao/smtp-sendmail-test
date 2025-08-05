@@ -1,0 +1,19 @@
+{
+    "name": "smtp-test-tool/email-tester",
+    "description": "SMTP and IMAP server testing tool",
+    "type": "project",
+    "require": {
+        "php": ">=8.0",
+        "phpmailer/phpmailer": "^6.8",
+        "monolog/monolog": "^3.0",
+        "vlucas/phpdotenv": "^5.5"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^10.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "EmailTester\\": "src/"
+        }
+    }
+}
