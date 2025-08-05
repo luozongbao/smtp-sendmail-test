@@ -347,6 +347,31 @@ sudo chmod 775 /var/www/smtp-sendmail-test/smtp-test-tool/logs/
 - Enable **"Less secure app access"** for regular passwords (not recommended)
 - Check **"Allow access for less secure apps"** in Gmail settings
 
+#### 5. HTTP 500 Error
+```bash
+# Check Nginx error logs
+sudo tail -20 /var/log/nginx/error.log
+
+# Check PHP-FPM error logs  
+sudo tail -20 /var/log/php8.1-fpm.log
+
+# Common cause: Missing config file paths
+# Ensure paths in PHP files match actual directory structure
+```
+
+#### 6. CSRF Token Error During Installation
+```bash
+# If you get "Invalid security token" during installation:
+
+# Check if sessions are working
+# Visit: http://your-domain/session-test.php
+
+# Clear browser cookies and cache
+# Then restart the installation process
+
+# Ensure you're accessing via the correct protocol (HTTP vs HTTPS)
+```
+
 ### Debug Mode
 
 Enable debug logging by setting in `.env`:

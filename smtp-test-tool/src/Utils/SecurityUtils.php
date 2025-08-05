@@ -197,7 +197,8 @@ class SecurityUtils
         if (session_status() === PHP_SESSION_NONE) {
             // Configure secure session settings
             ini_set('session.cookie_httponly', '1');
-            ini_set('session.cookie_secure', '1');
+            // Only use secure cookies for HTTPS
+            ini_set('session.cookie_secure', isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? '1' : '0');
             ini_set('session.use_strict_mode', '1');
             ini_set('session.cookie_samesite', 'Strict');
             
