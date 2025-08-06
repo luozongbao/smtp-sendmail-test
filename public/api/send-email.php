@@ -27,11 +27,11 @@ header('Access-Control-Allow-Headers: Content-Type');
 
 require_once __DIR__ . '/../../vendor/autoload.php';
 
-use EmailTester\Classes\SMTPTester;
-use EmailTester\Classes\EmailValidator;
-use EmailTester\Utils\SecurityUtils;
-use EmailTester\Utils\Logger;
-use EmailTester\Config\Database;
+use EmailTester\classes\SMTPTester;
+use EmailTester\classes\EmailValidator;
+use EmailTester\utils\SecurityUtils;
+use EmailTester\utils\Logger;
+use EmailTester\config\Database;
 
 // Check if it's a POST request
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -133,8 +133,20 @@ try {
     // Create SMTP tester instance
     $smtpTester = new SMTPTester($smtp_host, $smtp_port, $smtp_port == 465 ? 'ssl' : 'tls', $smtp_username, $smtp_password);
 
+    // Process email template placeholders
+    $processedSubject = $subject;
+    $processedBody = $body;
+    
+    // Replace timestamp placeholder with current UTC time in user-friendly format
+    $utcTimestamp = \EmailTester\utils\SecurityUtils::getUTCTimestamp();
+    $localTimestamp = date('Y-m-d H:i:s T'); // Local time with timezone
+    $timestampReplacement = $utcTimestamp . ' UTC (Local: ' . $localTimestamp . ')';
+    
+    $processedSubject = str_replace('{{timestamp}}', $timestampReplacement, $processedSubject);
+    $processedBody = str_replace('{{timestamp}}', $timestampReplacement, $processedBody);
+
     // Send the email using sendTestEmail method
-    $result = $smtpTester->sendTestEmail($to_email, $subject, $body, true);
+    $result = $smtpTester->sendTestEmail($to_email, $processedSubject, $processedBody, true);
     
     // Add email_sent flag for frontend compatibility
     if ($result['success']) {

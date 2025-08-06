@@ -1,9 +1,9 @@
 <?php
 require_once __DIR__ . '/../vendor/autoload.php';
 
-use EmailTester\Classes\Installer;
-use EmailTester\Classes\EmailValidator;
-use EmailTester\Utils\SecurityUtils;
+use EmailTester\classes\Installer;
+use EmailTester\classes\EmailValidator;
+use EmailTester\utils\SecurityUtils;
 
 // Handle installation file cleanup
 if (isset($_GET['cleanup']) && $_GET['cleanup'] === 'true') {

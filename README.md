@@ -25,15 +25,23 @@ A comprehensive web-based tool for testing SMTP and IMAP server configurations, 
 
 All core features have been successfully implemented and tested:
 
-- ✅ **SMTP Server Testing** - Complete with authentication support
-- ✅ **IMAP Server Testing** - Full mailbox access and capability testing
+- ✅ **SMTP Server Testing** - Complete with authentication support and detailed output
+- ✅ **IMAP Server Testing** - Full mailbox access and capability testing (namespace issues resolved)
 - ✅ **Email Sending Interface** - Test email sending with popup forms  
 - ✅ **Port Scanner** - Common email ports + custom range scanning
 - ✅ **Modern Web Interface** - Responsive design with tabbed navigation
 - ✅ **API Endpoints** - Full REST API backend (6 endpoints)
 - ✅ **Security Features** - CSRF protection, rate limiting, validation
 - ✅ **Installation System** - 4-step web-based installation wizard
-- ✅ **Logging System** - Comprehensive test and security logging
+- ✅ **Logging System** - Comprehensive test and security logging with database storage
+- ✅ **Test History** - Complete test logs with detailed results and response times
+
+**Recent Updates (August 2025):**
+- 🔧 Fixed IMAP namespace issues with PHP 8+ compatibility
+- 🔧 Resolved Logger method call inconsistencies across all APIs
+- 🔧 Implemented proper database logging for test history
+- 🔧 Enhanced error handling and debugging output
+- 🔧 Updated project structure (moved from subdirectory to root)
 
 **Ready for immediate use!** 🚀
 
@@ -67,7 +75,7 @@ sudo apt-get install php8.1-cli php8.1-fpm php8.1-mysql php8.1-imap php8.1-curl 
 ```bash
 cd /var/www/
 git clone https://github.com/luozongbao/smtp-sendmail-test.git
-cd smtp-sendmail-test/smtp-test-tool
+cd smtp-sendmail-test
 ```
 
 2. **Install PHP dependencies** using Composer:
@@ -93,7 +101,7 @@ Create a new Nginx site configuration (`/etc/nginx/sites-available/smtp-test-too
 server {
     listen 80;
     server_name smtp-tester.local;  # Change to your domain
-    root /var/www/smtp-sendmail-test/smtp-test-tool/public;
+    root /var/www/smtp-sendmail-test/public;
     index index.php install.php;
     
     # Security headers
@@ -165,7 +173,7 @@ sudo rm public/install.php
 For development and testing purposes, you can quickly start the application:
 
 ```bash
-cd smtp-test-tool
+cd smtp-sendmail-test
 php -S localhost:8080 -t public
 ```
 
@@ -338,8 +346,8 @@ sudo systemctl restart php8.1-fpm
 #### 3. Permission Denied
 ```bash
 # Fix file permissions
-sudo chown -R www-data:www-data /var/www/smtp-sendmail-test/smtp-test-tool/
-sudo chmod 775 /var/www/smtp-sendmail-test/smtp-test-tool/logs/
+sudo chown -R www-data:www-data /var/www/smtp-sendmail-test/
+sudo chmod 775 /var/www/smtp-sendmail-test/logs/
 ```
 
 #### 4. Gmail Authentication Issues
@@ -372,6 +380,43 @@ sudo tail -20 /var/log/php8.1-fpm.log
 # Ensure you're accessing via the correct protocol (HTTP vs HTTPS)
 ```
 
+#### 7. IMAP "Call to undefined function" Errors
+```bash
+# This has been resolved in the latest version
+# If you encounter imap_capability errors:
+
+# Check if IMAP extension is properly loaded
+php -m | grep imap
+
+# The application now handles missing IMAP functions gracefully
+# and uses alternative methods for server information gathering
+```
+
+#### 8. Test Results Not Showing in History
+```bash
+# This has been fixed with proper database logging
+# If test logs are still empty:
+
+# Check database table exists
+mysql -u your_user -p your_database -e "DESCRIBE test_logs;"
+
+# Verify API endpoints are logging correctly
+# Check logs/application.log for any database errors
+
+# Ensure proper permissions on logs directory
+sudo chmod 775 logs/
+```
+
+#### 9. SMTP Tests Showing Generic Messages
+```bash
+# This has been resolved - SMTP tests now show detailed information
+# Including server capabilities, authentication status, and connection details
+
+# If you still see generic "Test Completed Successfully" messages:
+# Clear your browser cache and test again
+# Check that you're using the latest version of the application
+```
+
 ### Debug Mode
 
 Enable debug logging by setting in `.env`:
@@ -382,24 +427,23 @@ LOG_LEVEL=debug
 ## 📁 Project Structure
 
 ```
-smtp-sendmail-test/
-└── smtp-test-tool/        # Main application directory
-    ├── public/            # Web accessible files
-    │   ├── index.php      # Main application
-    │   ├── install.php    # Installation wizard
-    │   ├── css/           # Stylesheets
-    │   ├── js/            # JavaScript files
-    │   └── api/           # API endpoints
-    ├── src/               # PHP classes
-    │   ├── Classes/       # Core application classes
-    │   ├── Config/        # Configuration classes
-    │   └── Utils/         # Utility classes
-    ├── database/          # Database files
-    │   ├── schema.sql     # Database structure
-    │   └── migrations/    # Migration files
-    ├── logs/              # Application logs
-    ├── vendor/            # Composer dependencies
-    └── .env               # Environment configuration
+smtp-sendmail-test/        # Main application directory
+├── public/                # Web accessible files
+│   ├── index.php          # Main application
+│   ├── install.php        # Installation wizard
+│   ├── css/               # Stylesheets
+│   ├── js/                # JavaScript files
+│   └── api/               # API endpoints
+├── src/                   # PHP classes
+│   ├── classes/           # Core application classes
+│   ├── config/            # Configuration classes
+│   └── utils/             # Utility classes
+├── database/              # Database files
+│   └── schema.sql         # Database structure
+├── logs/                  # Application logs
+├── vendor/                # Composer dependencies
+├── .env                   # Environment configuration
+└── README.md              # This file
 ```
 
 ## 🤝 Contributing
@@ -413,6 +457,31 @@ smtp-sendmail-test/
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 📋 Changelog
+
+### Version 1.1.0 (August 6, 2025)
+- **🔧 Fixed**: IMAP namespace compatibility issues with PHP 8+
+- **🔧 Fixed**: Logger method inconsistencies across all API endpoints
+- **🔧 Fixed**: Test history not displaying results
+- **🔧 Fixed**: SMTP tests showing generic success messages
+- **🔧 Fixed**: SQL syntax errors in database schema (UTC_TIMESTAMP compatibility)
+- **🔧 Fixed**: Namespace case sensitivity issues in installation
+- **✨ Enhanced**: Database logging system for comprehensive test history
+- **✨ Enhanced**: Error handling and debugging output
+- **🏗️ Changed**: Project structure moved from subdirectory to root
+- **🧹 Cleanup**: Removed unused migration system and legacy files
+- **📚 Updated**: Documentation with current paths and troubleshooting
+
+### Version 1.0.0 (August 5, 2025)
+- **🎉 Initial**: Complete SMTP Test Tool implementation
+- **✨ Feature**: SMTP server testing with authentication
+- **✨ Feature**: IMAP server testing and mailbox access
+- **✨ Feature**: Email sending functionality
+- **✨ Feature**: Port scanner for email servers
+- **✨ Feature**: Web-based installation wizard
+- **🔒 Security**: CSRF protection and rate limiting
+- **📊 Logging**: Comprehensive application logging
 
 ## 🆘 Support
 
@@ -435,8 +504,6 @@ cp .env .env.backup
 git pull origin main
 composer install --no-dev --optimize-autoloader
 ```
-
-3. **Run any new migrations** if needed
 
 ---
 
