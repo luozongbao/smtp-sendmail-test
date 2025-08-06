@@ -7,6 +7,33 @@ class SecurityUtils
     private static array $rateLimitData = [];
     private static string $sessionKey = 'smtp_test_tool_session';
 
+    /**
+     * Get current timestamp in UTC format
+     */
+    public static function getUTCTimestamp(): string
+    {
+        return gmdate('Y-m-d H:i:s');
+    }
+
+    /**
+     * Get current timestamp in ISO 8601 UTC format for JavaScript compatibility
+     */
+    public static function getUTCTimestampISO(): string
+    {
+        return gmdate('Y-m-d\TH:i:s\Z');
+    }
+
+    /**
+     * Convert a local timestamp to UTC
+     */
+    public static function convertToUTC(string $localTimestamp, string $timezone = null): string
+    {
+        $timezone = $timezone ?: date_default_timezone_get();
+        $dt = new \DateTime($localTimestamp, new \DateTimeZone($timezone));
+        $dt->setTimezone(new \DateTimeZone('UTC'));
+        return $dt->format('Y-m-d H:i:s');
+    }
+
     public static function sanitizeInput(string $input): string
     {
         // Remove null bytes and control characters
@@ -268,7 +295,7 @@ class SecurityUtils
             'ip_address' => self::getClientIP(),
             'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? 'unknown',
             'request_uri' => $_SERVER['REQUEST_URI'] ?? 'unknown',
-            'timestamp' => date('Y-m-d H:i:s')
+            'timestamp' => self::getUTCTimestamp() // Use UTC timestamp utility
         ], $context);
         
         Logger::logSecurityEvent($event, $securityContext);

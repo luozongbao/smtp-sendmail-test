@@ -238,7 +238,7 @@ class Installer
             
             $logFile = $logDir . '/application.log';
             if (!file_exists($logFile)) {
-                file_put_contents($logFile, "Installation completed at " . date('Y-m-d H:i:s') . "\n");
+                file_put_contents($logFile, "Installation completed at " . \EmailTester\Utils\SecurityUtils::getUTCTimestamp() . " UTC\n");
                 chmod($logFile, 0644);
                 $result['steps_completed'][] = 'Log file initialized';
             }

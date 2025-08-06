@@ -129,7 +129,8 @@ try {
             'target_host' => $log['server_host'],
             'target_port' => $log['server_port'],
             'status' => $log['test_result'],
-            'created_at' => $log['test_timestamp'],
+            'created_at' => $log['test_timestamp'] . ' UTC', // Explicitly mark as UTC
+            'created_at_utc' => $log['test_timestamp'], // Raw UTC timestamp for JavaScript
             'user_ip' => $log['ip_address']
         ];
 

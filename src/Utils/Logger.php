@@ -138,7 +138,7 @@ class Logger
         $defaultContext = [
             'ip_address' => $_SERVER['REMOTE_ADDR'] ?? 'unknown',
             'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? 'unknown',
-            'timestamp' => date('Y-m-d H:i:s')
+            'timestamp' => SecurityUtils::getUTCTimestamp() // Use SecurityUtils UTC timestamp utility
         ];
 
         self::warning("Security event: {$event}", array_merge($defaultContext, $context));
@@ -149,7 +149,7 @@ class Logger
         $logContext = array_merge([
             'installation_step' => $step,
             'success' => $success,
-            'timestamp' => date('Y-m-d H:i:s')
+            'timestamp' => SecurityUtils::getUTCTimestamp() // Use SecurityUtils UTC timestamp utility
         ], $context);
 
         if ($success) {
@@ -221,7 +221,7 @@ class Logger
             $testResult = ($result['success'] ?? false) ? 'success' : 'failure';
             $errorMessage = $result['message'] ?? null;
             $responseTime = intval($result['response_time'] ?? 0);
-            $timestamp = date('Y-m-d H:i:s');
+            $timestamp = SecurityUtils::getUTCTimestamp(); // Store in UTC format using utility function
             $ipAddress = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
             $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? 'CLI';
             
