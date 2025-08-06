@@ -64,11 +64,8 @@ class IMAPTester
                 // Get server info
                 $serverInfo = [];
                 
-                // Try to get server capabilities
-                $capabilities = @\imap_capability($connection);
-                if ($capabilities) {
-                    $serverInfo['capabilities'] = explode(' ', $capabilities);
-                }
+                // Note: imap_capability function not available in this PHP build
+                // Using alternative methods to gather server information
                 
                 // Try to get quota information
                 $quotaRoot = @\imap_get_quotaroot($connection, 'INBOX');
