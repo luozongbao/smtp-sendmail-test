@@ -53,8 +53,6 @@ The SMTP Test Tool has been successfully implemented with all core features work
    - `/api/send-email.php` - Email sending
    - `/api/get-logs.php` - Retrieve test logs
    - `/api/clear-logs.php` - Clear all logs
-   - `/api/test.php` - System status check
-
 ### 🚀 How to Use
 
 1. **Access the Application**
