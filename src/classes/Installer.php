@@ -163,7 +163,7 @@ class Installer
 
             // Create config.php file
             $configContent = $this->generateConfigContent($config);
-            $configPath = __DIR__ . '/../Config/config.php';
+            $configPath = __DIR__ . '/../config/config.php';
             
             if (file_put_contents($configPath, $configContent)) {
                 $result['files_created'][] = 'config.php';
@@ -337,7 +337,7 @@ class Installer
     {
         $paths = [
             'logs' => __DIR__ . '/../../logs',
-            'config' => __DIR__ . '/../Config',
+            'config' => __DIR__ . '/../config',
             'root' => __DIR__ . '/../..'
         ];
 
