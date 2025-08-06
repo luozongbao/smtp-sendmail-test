@@ -126,33 +126,25 @@ try {
         $formatted_log = [
             'id' => $log['id'],
             'test_type' => $log['test_type'],
-            'target_host' => $log['target_host'],
-            'target_port' => $log['target_port'],
-            'status' => $log['status'],
-            'created_at' => $log['created_at'],
-            'user_ip' => $log['user_ip']
+            'target_host' => $log['server_host'],
+            'target_port' => $log['server_port'],
+            'status' => $log['test_result'],
+            'created_at' => $log['test_timestamp'],
+            'user_ip' => $log['ip_address']
         ];
 
         // Parse result_data if it's JSON
-        if (!empty($log['result_data'])) {
-            $result_data = json_decode($log['result_data'], true);
-            if (json_last_error() === JSON_ERROR_NONE) {
-                // Extract meaningful information from result data
-                if (isset($result_data['error'])) {
-                    $formatted_log['result_data'] = 'Error: ' . $result_data['error'];
-                } elseif (isset($result_data['connection_info'])) {
-                    $formatted_log['result_data'] = $result_data['connection_info'];
-                } elseif (isset($result_data['open_ports'])) {
-                    $open_count = count($result_data['open_ports']);
-                    $formatted_log['result_data'] = "Found $open_count open port(s)";
-                } else {
-                    $formatted_log['result_data'] = 'Test completed successfully';
-                }
-            } else {
-                $formatted_log['result_data'] = $log['result_data'];
-            }
+        if (!empty($log['error_message'])) {
+            $formatted_log['result_data'] = 'Error: ' . $log['error_message'];
+        } elseif ($log['test_result'] === 'success') {
+            $formatted_log['result_data'] = 'Test completed successfully';
         } else {
-            $formatted_log['result_data'] = 'No result data';
+            $formatted_log['result_data'] = 'Test failed';
+        }
+
+        // Add response time if available
+        if (!empty($log['response_time'])) {
+            $formatted_log['response_time'] = $log['response_time'] . 'ms';
         }
 
         $formatted_logs[] = $formatted_log;

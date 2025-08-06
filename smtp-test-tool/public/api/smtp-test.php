@@ -140,7 +140,15 @@ try {
     $result = $smtpTester->testConnection();
 
     // Log the test result
-    $logger->logTest('SMTP', [
+    Logger::logTest('SMTP', [
+        'host' => $host,
+        'port' => $port,
+        'security' => $security_type,
+        'username' => $username
+    ], $result);
+    
+    // Also log to database for the test logs view
+    Logger::logTestToDatabase('SMTP', [
         'host' => $host,
         'port' => $port,
         'security' => $security_type,

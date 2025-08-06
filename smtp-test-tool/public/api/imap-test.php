@@ -152,7 +152,15 @@ try {
     $result = $imapTester->testConnection();
 
     // Log the test result
-    $logger->logTest('IMAP', [
+    Logger::logTest('IMAP', [
+        'host' => $host,
+        'port' => $port,
+        'security' => $security_type,
+        'username' => $username
+    ], $result);
+    
+    // Also log to database for the test logs view
+    Logger::logTestToDatabase('IMAP', [
         'host' => $host,
         'port' => $port,
         'security' => $security_type,

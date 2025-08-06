@@ -178,9 +178,16 @@ try {
     }
 
     // Log the test result
-    $logger->logTest('Port Scan', [
+    Logger::logTest('Port Scan', [
         'host' => $host,
         'port' => $port_type === 'common' ? 0 : $start_port . '-' . $end_port,
+        'security' => 'none'
+    ], $result);
+    
+    // Also log to database for the test logs view
+    Logger::logTestToDatabase('Port Scan', [
+        'host' => $host,
+        'port' => $port_type === 'common' ? 0 : $start_port,
         'security' => 'none'
     ], $result);
 

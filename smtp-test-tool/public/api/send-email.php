@@ -142,13 +142,21 @@ try {
     }
 
     // Log the test result
-    $logger->logTest('Email Send', [
+    Logger::logTest('Email Send', [
         'host' => $smtp_host,
         'port' => $smtp_port,
         'security' => $smtp_security,
         'from' => $from_email,
         'to' => $to_email,
         'subject' => $subject
+    ], $result);
+    
+    // Also log to database for the test logs view
+    Logger::logTestToDatabase('Email Send', [
+        'host' => $smtp_host,
+        'port' => $smtp_port,
+        'security' => $smtp_security,
+        'username' => $smtp_username
     ], $result);
 
     // Return the result

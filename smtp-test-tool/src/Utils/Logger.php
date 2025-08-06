@@ -6,6 +6,8 @@ use Monolog\Logger as MonologLogger;
 use Monolog\Handler\StreamHandler;
 use Monolog\Handler\RotatingFileHandler;
 use Monolog\Formatter\LineFormatter;
+use EmailTester\Config\Database;
+use Exception;
 
 class Logger
 {
@@ -194,6 +196,44 @@ class Logger
         }
 
         return array_filter(explode("\n", $output));
+    }
+
+    /**
+     * Log test result to database
+     */
+    public static function logTestToDatabase(string $testType, array $config, array $result): void
+    {
+        try {
+            $database = Database::getConnection();
+            
+            $stmt = $database->prepare("
+                INSERT INTO test_logs (
+                    test_type, server_host, server_port, security_type, username,
+                    test_result, error_message, response_time, test_timestamp, ip_address, user_agent
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ");
+            
+            $testTypeForDb = strtolower($testType === 'Email Send' ? 'email' : $testType);
+            $host = $config['host'] ?? 'unknown';
+            $port = intval($config['port'] ?? 0);
+            $security = $config['security'] ?? 'none';
+            $username = $config['username'] ?? null;
+            $testResult = ($result['success'] ?? false) ? 'success' : 'failure';
+            $errorMessage = $result['message'] ?? null;
+            $responseTime = intval($result['response_time'] ?? 0);
+            $timestamp = date('Y-m-d H:i:s');
+            $ipAddress = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+            $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? 'CLI';
+            
+            $stmt->execute([
+                $testTypeForDb, $host, $port, $security, $username,
+                $testResult, $errorMessage, $responseTime, $timestamp, $ipAddress, $userAgent
+            ]);
+            
+        } catch (Exception $e) {
+            // Log error but don't fail the test
+            self::error('Failed to log test result to database: ' . $e->getMessage());
+        }
     }
 
     public static function clearLogs(): bool
