@@ -10,8 +10,8 @@ header('Access-Control-Allow-Methods: POST');
 header('Access-Control-Allow-Headers: Content-Type');
 
 require_once __DIR__ . '/../../vendor/autoload.php';
-require_once __DIR__ . '/../../src/Config/config/database.php';
 
+use EmailTester\Config\Database;
 use EmailTester\Utils\SecurityUtils;
 use EmailTester\Utils\Logger;
 
@@ -73,8 +73,7 @@ try {
     $deleted_count = $stmt->rowCount();
 
     // Log the clear action
-    $logger->logSecurity([
-        'event_type' => 'logs_cleared',
+    $logger::logSecurityEvent('logs_cleared', [
         'description' => "User cleared $deleted_count test logs",
         'user_ip' => $_SERVER['REMOTE_ADDR'] ?? 'unknown',
         'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? 'unknown'
@@ -90,8 +89,7 @@ try {
 } catch (PDOException $e) {
     error_log('Database error in clear-logs.php: ' . $e->getMessage());
     
-    $logger->logSecurity([
-        'event_type' => 'clear_logs_error',
+    $logger::logSecurityEvent('clear_logs_error', [
         'description' => 'Failed to clear logs: ' . $e->getMessage(),
         'user_ip' => $_SERVER['REMOTE_ADDR'] ?? 'unknown',
         'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? 'unknown'
@@ -106,8 +104,7 @@ try {
 } catch (Exception $e) {
     error_log('Error in clear-logs.php: ' . $e->getMessage());
     
-    $logger->logSecurity([
-        'event_type' => 'clear_logs_error',
+    $logger::logSecurityEvent('clear_logs_error', [
         'description' => 'Failed to clear logs: ' . $e->getMessage(),
         'user_ip' => $_SERVER['REMOTE_ADDR'] ?? 'unknown',
         'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? 'unknown'

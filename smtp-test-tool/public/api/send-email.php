@@ -26,12 +26,12 @@ header('Access-Control-Allow-Methods: POST');
 header('Access-Control-Allow-Headers: Content-Type');
 
 require_once __DIR__ . '/../../vendor/autoload.php';
-require_once __DIR__ . '/../../src/Config/config/database.php';
 
 use EmailTester\Classes\SMTPTester;
 use EmailTester\Classes\EmailValidator;
 use EmailTester\Utils\SecurityUtils;
 use EmailTester\Utils\Logger;
+use EmailTester\Config\Database;
 
 // Check if it's a POST request
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -155,8 +155,7 @@ try {
     outputJSON($result);
 
 } catch (InvalidArgumentException $e) {
-    $logger->logSecurity([
-        'event_type' => 'validation_error',
+    $logger::logSecurityEvent('validation_error', [
         'description' => 'Email send validation failed: ' . $e->getMessage(),
         'user_ip' => $_SERVER['REMOTE_ADDR'] ?? 'unknown',
         'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? 'unknown'
@@ -169,8 +168,7 @@ try {
     ]);
 
 } catch (Exception $e) {
-    $logger->logSecurity([
-        'event_type' => 'email_send_error',
+    $logger::logSecurityEvent('email_send_error', [
         'description' => 'Email send failed: ' . $e->getMessage(),
         'user_ip' => $_SERVER['REMOTE_ADDR'] ?? 'unknown',
         'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? 'unknown'

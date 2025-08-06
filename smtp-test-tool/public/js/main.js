@@ -115,10 +115,13 @@ class SMTPTestTool {
     async handleSMTPTest() {
         const form = document.getElementById('smtp-test-form');
         const formData = new FormData(form);
-
-        this.showLoading();
+        const submitButton = form.querySelector('button[type="submit"]');
+        const originalText = submitButton.textContent;
 
         try {
+            // Disable form and show progress
+            this.setFormLoading(form, true, 'Testing SMTP...');
+
             const response = await fetch('api/smtp-test.php', {
                 method: 'POST',
                 body: formData
@@ -129,28 +132,44 @@ class SMTPTestTool {
         } catch (error) {
             this.showError('SMTP Test Error', error.message);
         } finally {
-            this.hideLoading();
+            // Re-enable form
+            this.setFormLoading(form, false, originalText);
         }
     }
 
     async handleIMAPTest() {
         const form = document.getElementById('imap-test-form');
         const formData = new FormData(form);
-
-        this.showLoading();
+        const submitButton = form.querySelector('button[type="submit"]');
+        const originalText = submitButton.textContent;
 
         try {
+            // Disable form and show progress
+            this.setFormLoading(form, true, 'Testing IMAP...');
+
             const response = await fetch('api/imap-test.php', {
                 method: 'POST',
                 body: formData
             });
 
-            const result = await response.json();
-            this.displayTestResults('IMAP Test Results', result);
+            // Get response text first
+            const responseText = await response.text();
+            console.log('IMAP API Response:', responseText);
+            
+            try {
+                const result = JSON.parse(responseText);
+                this.displayTestResults('IMAP Test Results', result);
+            } catch (jsonError) {
+                console.error('JSON parsing error:', jsonError);
+                console.error('Raw response:', responseText);
+                this.showError('IMAP Test Error', `Server returned invalid JSON. Response: ${responseText.substring(0, 200)}...`);
+            }
         } catch (error) {
+            console.error('IMAP request error:', error);
             this.showError('IMAP Test Error', error.message);
         } finally {
-            this.hideLoading();
+            // Re-enable form
+            this.setFormLoading(form, false, originalText);
         }
     }
 
@@ -187,10 +206,13 @@ class SMTPTestTool {
     async handleEmailSend() {
         const form = document.getElementById('email-send-form');
         const formData = new FormData(form);
-
-        this.showLoading();
+        const submitButton = form.querySelector('button[type="submit"]');
+        const originalText = submitButton.textContent;
 
         try {
+            // Disable form and show progress
+            this.setFormLoading(form, true, 'Sending email...');
+
             const response = await fetch('api/send-email.php', {
                 method: 'POST',
                 body: formData
@@ -201,7 +223,8 @@ class SMTPTestTool {
         } catch (error) {
             this.showError('Email Send Error', error.message);
         } finally {
-            this.hideLoading();
+            // Re-enable form
+            this.setFormLoading(form, false, originalText);
         }
     }
 

@@ -83,15 +83,18 @@ try {
     $sql = "SELECT 
                 id,
                 test_type,
-                target_host,
-                target_port,
-                status,
-                result_data,
-                user_ip,
-                created_at
+                server_host,
+                server_port,
+                security_type,
+                username,
+                test_result,
+                error_message,
+                response_time,
+                test_timestamp,
+                ip_address
             FROM test_logs 
             $where_clause
-            ORDER BY created_at DESC 
+            ORDER BY test_timestamp DESC 
             LIMIT :limit OFFSET :offset";
 
     $stmt = $pdo->prepare($sql);

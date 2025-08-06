@@ -42,7 +42,7 @@ class IMAPTester
             $connectionString = $this->buildConnectionString();
             
             // Suppress warnings for cleaner error handling
-            $connection = @imap_open($connectionString, $this->username, $this->password, 0, 1, [
+            $connection = @\imap_open($connectionString, $this->username, $this->password, 0, 1, [
                 'DISABLE_AUTHENTICATOR' => 'GSSAPI'
             ]);
 
@@ -51,7 +51,7 @@ class IMAPTester
                 $result['message'] = 'IMAP connection successful';
                 
                 // Get mailbox info
-                $mailboxInfo = @imap_mailboxmsginfo($connection);
+                $mailboxInfo = @\imap_mailboxmsginfo($connection);
                 if ($mailboxInfo) {
                     $result['details'] = [
                         'total_messages' => $mailboxInfo->Nmsgs,
@@ -65,19 +65,19 @@ class IMAPTester
                 $serverInfo = [];
                 
                 // Try to get server capabilities
-                $capabilities = @imap_capability($connection);
+                $capabilities = @\imap_capability($connection);
                 if ($capabilities) {
                     $serverInfo['capabilities'] = explode(' ', $capabilities);
                 }
                 
                 // Try to get quota information
-                $quotaRoot = @imap_get_quotaroot($connection, 'INBOX');
+                $quotaRoot = @\imap_get_quotaroot($connection, 'INBOX');
                 if ($quotaRoot && is_array($quotaRoot)) {
                     $serverInfo['quota_root'] = $quotaRoot;
                 }
                 
                 // Get mailbox status
-                $status = @imap_status($connection, $connectionString, SA_ALL);
+                $status = @\imap_status($connection, $connectionString, SA_ALL);
                 if ($status) {
                     $serverInfo['mailbox_status'] = [
                         'messages' => $status->messages ?? 0,
@@ -102,9 +102,9 @@ class IMAPTester
                     $result['capabilities'] = array_slice($serverInfo['capabilities'], 0, 10); // Show first 10 capabilities
                 }
                 
-                @imap_close($connection);
+                @\imap_close($connection);
             } else {
-                $error = @imap_last_error();
+                $error = @\imap_last_error();
                 $result['message'] = $error ? $error : 'Failed to connect to IMAP server';
                 $this->lastError = ['message' => $result['message']];
             }
@@ -138,10 +138,10 @@ class IMAPTester
 
         try {
             $connectionString = $this->buildConnectionString();
-            $connection = @imap_open($connectionString, $this->username, $this->password);
+            $connection = @\imap_open($connectionString, $this->username, $this->password);
 
             if ($connection) {
-                $mailboxes = imap_list($connection, $connectionString, '*');
+                $mailboxes = \imap_list($connection, $connectionString, '*');
                 
                 if ($mailboxes) {
                     foreach ($mailboxes as $mailbox) {
@@ -156,9 +156,9 @@ class IMAPTester
                     $result['message'] = 'No mailboxes found or access denied';
                 }
 
-                imap_close($connection);
+                \imap_close($connection);
             } else {
-                $error = imap_last_error();
+                $error = \imap_last_error();
                 $result['message'] = $error ? $error : 'Failed to connect to IMAP server';
             }
 
@@ -184,10 +184,10 @@ class IMAPTester
 
         try {
             $connectionString = $this->buildConnectionString();
-            $connection = @imap_open($connectionString, $this->username, $this->password);
+            $connection = @\imap_open($connectionString, $this->username, $this->password);
 
             if ($connection) {
-                $quota = imap_get_quota($connection, 'user.' . $this->username);
+                $quota = \imap_get_quota($connection, 'user.' . $this->username);
                 
                 if ($quota) {
                     $result['success'] = true;
@@ -199,7 +199,7 @@ class IMAPTester
                     ];
                 } else {
                     // Try quotaroot as fallback
-                    $quotaRoot = imap_get_quotaroot($connection, 'INBOX');
+                    $quotaRoot = \imap_get_quotaroot($connection, 'INBOX');
                     if ($quotaRoot) {
                         $result['success'] = true;
                         $result['message'] = 'Quota root information retrieved';
@@ -209,9 +209,9 @@ class IMAPTester
                     }
                 }
 
-                imap_close($connection);
+                \imap_close($connection);
             } else {
-                $error = imap_last_error();
+                $error = \imap_last_error();
                 $result['message'] = $error ? $error : 'Failed to connect to IMAP server';
             }
 
@@ -237,16 +237,16 @@ class IMAPTester
 
         try {
             $connectionString = $this->buildConnectionString();
-            $connection = @imap_open($connectionString, $this->username, $this->password);
+            $connection = @\imap_open($connectionString, $this->username, $this->password);
 
             if ($connection) {
-                $messageCount = imap_num_msg($connection);
+                $messageCount = \imap_num_msg($connection);
                 
                 if ($messageCount > 0) {
                     $start = max(1, $messageCount - $limit + 1);
                     
                     for ($i = $messageCount; $i >= $start && count($result['messages']) < $limit; $i--) {
-                        $header = imap_headerinfo($connection, $i);
+                        $header = \imap_headerinfo($connection, $i);
                         if ($header) {
                             $result['messages'][] = [
                                 'subject' => $header->subject ?? 'No Subject',
@@ -265,9 +265,9 @@ class IMAPTester
                     $result['success'] = true;
                 }
 
-                imap_close($connection);
+                \imap_close($connection);
             } else {
-                $error = imap_last_error();
+                $error = \imap_last_error();
                 $result['message'] = $error ? $error : 'Failed to connect to IMAP server';
             }
 
