@@ -435,12 +435,11 @@ smtp-sendmail-test/        # Main application directory
 │   ├── js/                # JavaScript files
 │   └── api/               # API endpoints
 ├── src/                   # PHP classes
-│   ├── Classes/           # Core application classes
-│   ├── Config/            # Configuration classes
-│   └── Utils/             # Utility classes
+│   ├── classes/           # Core application classes
+│   ├── config/            # Configuration classes
+│   └── utils/             # Utility classes
 ├── database/              # Database files
-│   ├── schema.sql         # Database structure
-│   └── migrations/        # Migration files
+│   └── schema.sql         # Database structure
 ├── logs/                  # Application logs
 ├── vendor/                # Composer dependencies
 ├── .env                   # Environment configuration
@@ -466,9 +465,12 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **🔧 Fixed**: Logger method inconsistencies across all API endpoints
 - **🔧 Fixed**: Test history not displaying results
 - **🔧 Fixed**: SMTP tests showing generic success messages
+- **🔧 Fixed**: SQL syntax errors in database schema (UTC_TIMESTAMP compatibility)
+- **🔧 Fixed**: Namespace case sensitivity issues in installation
 - **✨ Enhanced**: Database logging system for comprehensive test history
 - **✨ Enhanced**: Error handling and debugging output
 - **🏗️ Changed**: Project structure moved from subdirectory to root
+- **🧹 Cleanup**: Removed unused migration system and legacy files
 - **📚 Updated**: Documentation with current paths and troubleshooting
 
 ### Version 1.0.0 (August 5, 2025)
@@ -502,8 +504,6 @@ cp .env .env.backup
 git pull origin main
 composer install --no-dev --optimize-autoloader
 ```
-
-3. **Run any new migrations** if needed
 
 ---
 
