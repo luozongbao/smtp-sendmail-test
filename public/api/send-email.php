@@ -27,11 +27,11 @@ header('Access-Control-Allow-Headers: Content-Type');
 
 require_once __DIR__ . '/../../vendor/autoload.php';
 
-use EmailTester\Classes\SMTPTester;
-use EmailTester\Classes\EmailValidator;
-use EmailTester\Utils\SecurityUtils;
-use EmailTester\Utils\Logger;
-use EmailTester\Config\Database;
+use EmailTester\classes\SMTPTester;
+use EmailTester\classes\EmailValidator;
+use EmailTester\utils\SecurityUtils;
+use EmailTester\utils\Logger;
+use EmailTester\config\Database;
 
 // Check if it's a POST request
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -138,7 +138,7 @@ try {
     $processedBody = $body;
     
     // Replace timestamp placeholder with current UTC time in user-friendly format
-    $utcTimestamp = \EmailTester\Utils\SecurityUtils::getUTCTimestamp();
+    $utcTimestamp = \EmailTester\utils\SecurityUtils::getUTCTimestamp();
     $localTimestamp = date('Y-m-d H:i:s T'); // Local time with timezone
     $timestampReplacement = $utcTimestamp . ' UTC (Local: ' . $localTimestamp . ')';
     

@@ -1,8 +1,8 @@
 <?php
 
-namespace EmailTester\Classes;
+namespace EmailTester\classes;
 
-use EmailTester\Config\Database;
+use EmailTester\config\Database;
 use PDO;
 use PDOException;
 
@@ -238,7 +238,7 @@ class Installer
             
             $logFile = $logDir . '/application.log';
             if (!file_exists($logFile)) {
-                file_put_contents($logFile, "Installation completed at " . \EmailTester\Utils\SecurityUtils::getUTCTimestamp() . " UTC\n");
+                file_put_contents($logFile, "Installation completed at " . \EmailTester\utils\SecurityUtils::getUTCTimestamp() . " UTC\n");
                 chmod($logFile, 0644);
                 $result['steps_completed'][] = 'Log file initialized';
             }

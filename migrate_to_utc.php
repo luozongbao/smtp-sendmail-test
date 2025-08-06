@@ -7,7 +7,7 @@
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-use EmailTester\Config\Database;
+use EmailTester\config\Database;
 
 // Color output for CLI
 function colorOutput($text, $color = 'white') {

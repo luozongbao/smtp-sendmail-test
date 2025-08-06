@@ -11,8 +11,8 @@ header('Access-Control-Allow-Headers: Content-Type');
 
 require_once __DIR__ . '/../../vendor/autoload.php';
 
-use EmailTester\Config\Database;
-use EmailTester\Utils\SecurityUtils;
+use EmailTester\config\Database;
+use EmailTester\utils\SecurityUtils;
 
 // Check if it's a GET request
 if ($_SERVER['REQUEST_METHOD'] !== 'GET') {

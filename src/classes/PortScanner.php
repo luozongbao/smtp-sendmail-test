@@ -1,8 +1,8 @@
 <?php
 
-namespace EmailTester\Classes;
+namespace EmailTester\classes;
 
-use EmailTester\Config\Constants;
+use EmailTester\config\Constants;
 
 class PortScanner
 {
