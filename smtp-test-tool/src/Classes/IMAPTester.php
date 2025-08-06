@@ -51,7 +51,7 @@ class IMAPTester
                 $result['message'] = 'IMAP connection successful';
                 
                 // Get mailbox info
-                $mailboxInfo = imap_mailboxmsginfo($connection);
+                $mailboxInfo = @imap_mailboxmsginfo($connection);
                 if ($mailboxInfo) {
                     $result['details'] = [
                         'total_messages' => $mailboxInfo->Nmsgs,
@@ -62,11 +62,49 @@ class IMAPTester
                 }
 
                 // Get server info
-                $result['server_info'] = imap_get_quotaroot($connection, 'INBOX');
+                $serverInfo = [];
                 
-                imap_close($connection);
+                // Try to get server capabilities
+                $capabilities = @imap_capability($connection);
+                if ($capabilities) {
+                    $serverInfo['capabilities'] = explode(' ', $capabilities);
+                }
+                
+                // Try to get quota information
+                $quotaRoot = @imap_get_quotaroot($connection, 'INBOX');
+                if ($quotaRoot && is_array($quotaRoot)) {
+                    $serverInfo['quota_root'] = $quotaRoot;
+                }
+                
+                // Get mailbox status
+                $status = @imap_status($connection, $connectionString, SA_ALL);
+                if ($status) {
+                    $serverInfo['mailbox_status'] = [
+                        'messages' => $status->messages ?? 0,
+                        'recent' => $status->recent ?? 0,
+                        'unseen' => $status->unseen ?? 0,
+                        'uidnext' => $status->uidnext ?? 0,
+                        'uidvalidity' => $status->uidvalidity ?? 0
+                    ];
+                }
+                
+                // Format server info as a readable string
+                $serverInfoString = "IMAP Server Connected";
+                if (!empty($serverInfo['mailbox_status'])) {
+                    $status = $serverInfo['mailbox_status'];
+                    $serverInfoString .= " | Messages: {$status['messages']} | Recent: {$status['recent']} | Unseen: {$status['unseen']}";
+                }
+                
+                $result['server_info'] = $serverInfoString;
+                
+                // Also store capabilities separately for display
+                if (!empty($serverInfo['capabilities'])) {
+                    $result['capabilities'] = array_slice($serverInfo['capabilities'], 0, 10); // Show first 10 capabilities
+                }
+                
+                @imap_close($connection);
             } else {
-                $error = imap_last_error();
+                $error = @imap_last_error();
                 $result['message'] = $error ? $error : 'Failed to connect to IMAP server';
                 $this->lastError = ['message' => $result['message']];
             }

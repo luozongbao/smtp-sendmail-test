@@ -10,8 +10,8 @@ header('Access-Control-Allow-Methods: GET');
 header('Access-Control-Allow-Headers: Content-Type');
 
 require_once __DIR__ . '/../../vendor/autoload.php';
-require_once __DIR__ . '/../../src/Config/config/database.php';
 
+use EmailTester\Config\Database;
 use EmailTester\Utils\SecurityUtils;
 
 // Check if it's a GET request
@@ -29,24 +29,32 @@ if (!SecurityUtils::checkRateLimit('get_logs', 20, 300)) { // 20 requests per 5 
 }
 
 try {
-    // Load configuration
-    if (!file_exists(__DIR__ . '/../../config.php')) {
-        throw new Exception('Configuration file not found');
+    // Load database configuration from .env file
+    if (file_exists(__DIR__ . '/../../.env')) {
+        $lines = file(__DIR__ . '/../../.env', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+        $config = [];
+        foreach ($lines as $line) {
+            if (strpos($line, '=') !== false && substr($line, 0, 1) !== '#') {
+                [$key, $value] = explode('=', $line, 2);
+                $config[trim($key)] = trim($value);
+            }
+        }
+        
+        // Configure database connection
+        Database::configure([
+            'host' => $config['DB_HOST'] ?? 'localhost',
+            'port' => $config['DB_PORT'] ?? 3306,
+            'database' => $config['DB_DATABASE'] ?? 'smtp_test_tool',
+            'username' => $config['DB_USERNAME'] ?? 'smtp_user',
+            'password' => $config['DB_PASSWORD'] ?? '',
+            'charset' => 'utf8mb4'
+        ]);
+    } else {
+        throw new Exception('Configuration file (.env) not found');
     }
-    
-    require_once __DIR__ . '/../../config.php';
 
-    // Connect to database
-    $pdo = new PDO(
-        "mysql:host=" . DB_HOST . ";port=" . DB_PORT . ";dbname=" . DB_NAME . ";charset=utf8mb4",
-        DB_USER,
-        DB_PASS,
-        [
-            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-            PDO::ATTR_EMULATE_PREPARES => false
-        ]
-    );
+    // Get database connection
+    $pdo = Database::getConnection();
 
     // Get query parameters
     $limit = intval($_GET['limit'] ?? 50);

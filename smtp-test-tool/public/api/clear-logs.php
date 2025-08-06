@@ -45,11 +45,11 @@ if (!SecurityUtils::checkRateLimit('clear_logs', 2, 300)) { // 2 requests per 5 
 
 try {
     // Load configuration
-    if (!file_exists(__DIR__ . '/../../config.php')) {
+    if (!file_exists(__DIR__ . '/../../src/Config/config.php')) {
         throw new Exception('Configuration file not found');
     }
     
-    require_once __DIR__ . '/../../config.php';
+    require_once __DIR__ . '/../../src/Config/config.php';
 
     // Connect to database
     $pdo = new PDO(

@@ -5,6 +5,23 @@ use EmailTester\Classes\Installer;
 use EmailTester\Classes\EmailValidator;
 use EmailTester\Utils\SecurityUtils;
 
+// Handle installation file cleanup
+if (isset($_GET['cleanup']) && $_GET['cleanup'] === 'true') {
+    $currentFile = __FILE__;
+    $backupFile = __DIR__ . '/install.php.bak';
+    
+    // Rename the installation file
+    if (rename($currentFile, $backupFile)) {
+        // Redirect to the main application
+        header('Location: index.php');
+        exit;
+    } else {
+        // If rename fails, still redirect but show a message
+        header('Location: index.php?install_cleanup_failed=1');
+        exit;
+    }
+}
+
 // Start secure session
 SecurityUtils::startSecureSession();
 SecurityUtils::setSecurityHeaders();
@@ -378,7 +395,7 @@ function handleConfigurationStep($data, $installer): array
                     <div class="completion-info">
                         <h3>Important Security Notes:</h3>
                         <ul>
-                            <li>Please delete or rename this <code>install.php</code> file for security</li>
+                            <li>The <code>install.php</code> file will be automatically renamed for security when you launch the application</li>
                             <li>Make sure your <code>.env</code> file is not accessible from the web</li>
                             <li>Consider setting up HTTPS for production use</li>
                         </ul>
@@ -392,7 +409,7 @@ function handleConfigurationStep($data, $installer): array
                     </div>
                     
                     <div class="step-actions">
-                        <a href="index.php" class="btn btn-primary btn-large">Launch SMTP Test Tool</a>
+                        <a href="?cleanup=true" class="btn btn-primary btn-large">Launch SMTP Test Tool</a>
                     </div>
                 </div>
             <?php endif; ?>

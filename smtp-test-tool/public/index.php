@@ -15,14 +15,31 @@ use EmailTester\Utils\Logger;
 // Initialize security and logging
 $logger = new Logger();
 
+// Check for installation cleanup message
+$cleanupMessage = '';
+if (isset($_GET['install_cleanup_failed']) && $_GET['install_cleanup_failed'] === '1') {
+    $cleanupMessage = '<div class="alert alert-warning">Installation completed successfully, but the install.php file could not be automatically renamed. Please manually delete or rename the install.php file for security.</div>';
+}
+
 // Check if installation is complete
-if (!file_exists(__DIR__ . '/../config.php')) {
-    header('Location: install.php');
+if (!file_exists(__DIR__ . '/../src/Config/config.php')) {
+    // Check if install.php exists, otherwise check for backup
+    if (file_exists(__DIR__ . '/install.php')) {
+        header('Location: install.php');
+    } elseif (file_exists(__DIR__ . '/install.php.bak')) {
+        // Installation was completed but config file is missing
+        echo '<h1>Configuration Error</h1>';
+        echo '<p>Installation appears to have been completed, but configuration file is missing.</p>';
+        echo '<p>Please restore install.php.bak to install.php and run the installation again.</p>';
+    } else {
+        echo '<h1>Installation Required</h1>';
+        echo '<p>Please upload the installation files and run the installation wizard.</p>';
+    }
     exit();
 }
 
 // Load configuration
-require_once __DIR__ . '/../config.php';
+require_once __DIR__ . '/../src/Config/config.php';
 
 // Start session and validate CSRF token if POST request
 session_start();
@@ -55,6 +72,11 @@ $csrfToken = SecurityUtils::generateCSRFToken();
                 <p>Comprehensive Email Server Testing Suite</p>
             </div>
         </header>
+
+        <!-- Cleanup Message -->
+        <?php if (!empty($cleanupMessage)): ?>
+            <?= $cleanupMessage ?>
+        <?php endif; ?>
 
         <!-- Navigation -->
         <nav class="app-nav">

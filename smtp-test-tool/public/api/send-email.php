@@ -1,8 +1,24 @@
 <?php
+// Start output buffering
+ob_start();
+
 /**
  * Send Email API Endpoint
  * Handles email sending requests
  */
+
+
+// Function to output clean JSON and exit
+function outputJSON($data, $statusCode = 200) {
+    // Clear any previous output
+    if (ob_get_level()) {
+        ob_clean();
+    }
+    
+    http_response_code($statusCode);
+    echo json_encode($data, JSON_UNESCAPED_UNICODE);
+    exit();
+}
 
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
@@ -20,7 +36,7 @@ use EmailTester\Utils\Logger;
 // Check if it's a POST request
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
-    echo json_encode(['success' => false, 'error' => 'Method not allowed']);
+    outputJSON(['success' => false, 'error' => 'Method not allowed']);
     exit();
 }
 
@@ -32,14 +48,14 @@ $logger = new Logger();
 session_start();
 if (!SecurityUtils::validateCSRFToken($_POST['csrf_token'] ?? '')) {
     http_response_code(403);
-    echo json_encode(['success' => false, 'error' => 'CSRF token validation failed']);
+    outputJSON(['success' => false, 'error' => 'CSRF token validation failed']);
     exit();
 }
 
 // Check rate limiting - more restrictive for email sending
 if (!SecurityUtils::checkRateLimit('send_email', 3, 300)) { // 3 emails per 5 minutes
     http_response_code(429);
-    echo json_encode(['success' => false, 'error' => 'Rate limit exceeded. Please try again later.']);
+    outputJSON(['success' => false, 'error' => 'Rate limit exceeded. Please try again later.']);
     exit();
 }
 
@@ -126,23 +142,17 @@ try {
     }
 
     // Log the test result
-    $logger->logTest([
-        'test_type' => 'Email Send',
-        'target_host' => $smtp_host,
-        'target_port' => $smtp_port,
-        'status' => $result['success'] ? 'success' : 'failed',
-        'result_data' => json_encode([
-            'from' => $from_email,
-            'to' => $to_email,
-            'subject' => $subject,
-            'success' => $result['success'],
-            'error' => $result['error'] ?? null
-        ]),
-        'user_ip' => $_SERVER['REMOTE_ADDR'] ?? 'unknown'
-    ]);
+    $logger->logTest('Email Send', [
+        'host' => $smtp_host,
+        'port' => $smtp_port,
+        'security' => $smtp_security,
+        'from' => $from_email,
+        'to' => $to_email,
+        'subject' => $subject
+    ], $result);
 
     // Return the result
-    echo json_encode($result);
+    outputJSON($result);
 
 } catch (InvalidArgumentException $e) {
     $logger->logSecurity([

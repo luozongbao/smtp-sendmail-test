@@ -157,21 +157,30 @@ class SMTPTestTool {
     async handlePortScan() {
         const form = document.getElementById('port-scan-form');
         const formData = new FormData(form);
-
-        this.showLoading();
+        const submitButton = form.querySelector('button[type="submit"]');
+        const originalText = submitButton.textContent;
 
         try {
+            // Disable form and show progress
+            this.setFormLoading(form, true, 'Scanning ports...');
+            
+            console.log('Port scan request data:', Object.fromEntries(formData));
+            
             const response = await fetch('api/port-scan.php', {
                 method: 'POST',
                 body: formData
             });
-
+            
             const result = await response.json();
+            console.log('Port scan response:', result);
+            
             this.displayTestResults('Port Scan Results', result);
         } catch (error) {
+            console.error('Port scan error:', error);
             this.showError('Port Scan Error', error.message);
         } finally {
-            this.hideLoading();
+            // Re-enable form
+            this.setFormLoading(form, false, originalText);
         }
     }
 
@@ -243,6 +252,7 @@ class SMTPTestTool {
     }
 
     displayTestResults(title, result) {
+        console.log('Displaying results for:', title, result);
         let html = '';
 
         if (result.success) {
@@ -270,6 +280,20 @@ class SMTPTestTool {
                 html += '</div>';
             }
 
+            if (result.details && Array.isArray(result.details)) {
+                html += '<div class="result-item">';
+                html += '<div class="result-label">Connection Details</div>';
+                html += '<div class="result-value">' + result.details.map(detail => this.escapeHtml(detail)).join('<br>') + '</div>';
+                html += '</div>';
+            }
+
+            if (result.response_time) {
+                html += '<div class="result-item">';
+                html += '<div class="result-label">Response Time</div>';
+                html += '<div class="result-value">' + result.response_time + 'ms</div>';
+                html += '</div>';
+            }
+
             if (result.mailboxes && Array.isArray(result.mailboxes)) {
                 html += '<div class="result-item">';
                 html += '<div class="result-label">Available Mailboxes</div>';
@@ -277,21 +301,53 @@ class SMTPTestTool {
                 html += '</div>';
             }
 
-            if (result.open_ports && Array.isArray(result.open_ports)) {
-                html += '<div class="result-item success">';
-                html += '<div class="result-label">Open Ports</div>';
+            // Port scan specific results
+            if (result.open_ports !== undefined && Array.isArray(result.open_ports)) {
+                console.log('Processing open ports:', result.open_ports, 'Details:', result.details);
+                
+                if (result.open_ports.length > 0) {
+                    html += '<div class="result-item success">';
+                    html += '<div class="result-label">Open Ports (' + result.open_ports.length + ')</div>';
+                    html += '<div class="result-value">';
+                    result.open_ports.forEach(port => {
+                        const portDetail = result.details && result.details[port] ? result.details[port] : {};
+                        const service = portDetail.service || 'Unknown Service';
+                        const responseTime = portDetail.response_time || 0;
+                        const banner = portDetail.banner ? ` - ${this.escapeHtml(portDetail.banner.substring(0, 50))}` : '';
+                        html += `<div style="margin-bottom: 5px;"><strong>Port ${port}</strong>: ${this.escapeHtml(service)} (${responseTime}ms)${banner}</div>`;
+                    });
+                    html += '</div></div>';
+                } else {
+                    html += '<div class="result-item warning">';
+                    html += '<div class="result-label">Open Ports</div>';
+                    html += '<div class="result-value">No open ports found</div>';
+                    html += '</div>';
+                }
+            }
+
+            if (result.closed_ports !== undefined && Array.isArray(result.closed_ports) && result.closed_ports.length > 0) {
+                html += '<div class="result-item error">';
+                html += '<div class="result-label">Closed/Filtered Ports (' + result.closed_ports.length + ')</div>';
                 html += '<div class="result-value">';
-                result.open_ports.forEach(port => {
-                    html += `Port ${port.port}: ${this.escapeHtml(port.service || 'Unknown Service')}<br>`;
-                });
+                if (result.closed_ports.length <= 10) {
+                    // Show all closed ports if not too many
+                    html += result.closed_ports.join(', ');
+                } else {
+                    // Show first 10 and count
+                    html += result.closed_ports.slice(0, 10).join(', ') + ` and ${result.closed_ports.length - 10} more`;
+                }
                 html += '</div></div>';
             }
 
-            if (result.closed_ports && Array.isArray(result.closed_ports)) {
-                html += '<div class="result-item error">';
-                html += '<div class="result-label">Closed/Filtered Ports</div>';
-                html += '<div class="result-value">' + result.closed_ports.join(', ') + '</div>';
-                html += '</div>';
+            // Show scan summary
+            if (result.total_ports || result.scan_time) {
+                html += '<div class="result-item">';
+                html += '<div class="result-label">Scan Summary</div>';
+                html += '<div class="result-value">';
+                if (result.total_ports) html += `Total ports scanned: ${result.total_ports}<br>`;
+                if (result.scan_time) html += `Scan time: ${result.scan_time}ms<br>`;
+                if (result.host) html += `Target host: ${this.escapeHtml(result.host)}`;
+                html += '</div></div>';
             }
 
             if (result.email_sent) {
@@ -462,6 +518,33 @@ class SMTPTestTool {
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
+    }
+
+    setFormLoading(form, isLoading, buttonText = null) {
+        const submitButton = form.querySelector('button[type="submit"]');
+        const inputs = form.querySelectorAll('input, select, textarea, button');
+        
+        if (isLoading) {
+            // Disable all form elements
+            inputs.forEach(input => {
+                input.disabled = true;
+            });
+            
+            // Update button text if provided
+            if (buttonText && submitButton) {
+                submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ' + buttonText;
+            }
+        } else {
+            // Re-enable all form elements
+            inputs.forEach(input => {
+                input.disabled = false;
+            });
+            
+            // Restore button text if provided
+            if (buttonText && submitButton) {
+                submitButton.innerHTML = buttonText;
+            }
+        }
     }
 }
 
