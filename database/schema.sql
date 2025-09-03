@@ -1,53 +1,43 @@
+
 -- SMTP Sendmail Test Tool Database Schema
+-- This schema includes all tables required for the application to function properly
 
-CREATE TABLE IF NOT EXISTS users (
+-- Application settings table for configuration storage
+CREATE TABLE IF NOT EXISTS app_settings (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    email VARCHAR(255) NOT NULL,
-    password_hash VARCHAR(255) NOT NULL,
-    is_admin BOOLEAN DEFAULT FALSE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    setting_key VARCHAR(100) NOT NULL UNIQUE,
+    setting_value TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_setting_key (setting_key)
 );
 
-CREATE TABLE IF NOT EXISTS email_logs (
+-- Test logs table for storing all test results
+CREATE TABLE IF NOT EXISTS test_logs (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT,
-    recipient VARCHAR(255) NOT NULL,
-    subject VARCHAR(255),
-    body TEXT,
-    status VARCHAR(50),
+    test_type VARCHAR(50) NOT NULL,
+    server_host VARCHAR(255) NOT NULL,
+    server_port INT NOT NULL,
+    security_type VARCHAR(50),
+    username VARCHAR(255),
+    test_result VARCHAR(20) NOT NULL,
     error_message TEXT,
-    sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+    response_time INT,
+    test_timestamp TIMESTAMP NOT NULL,
+    ip_address VARCHAR(45),
+    user_agent VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_test_type (test_type),
+    INDEX idx_test_result (test_result),
+    INDEX idx_test_timestamp (test_timestamp),
+    INDEX idx_server_host (server_host)
 );
 
-CREATE TABLE IF NOT EXISTS smtp_tests (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT,
-    smtp_server VARCHAR(255) NOT NULL,
-    smtp_port INT NOT NULL,
-    result VARCHAR(50),
-    details TEXT,
-    tested_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
-);
+-- Insert default application settings
+INSERT INTO app_settings (setting_key, setting_value) VALUES 
+('installation_completed', 'false'),
+('app_version', '1.0.0')
+ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value);
 
-CREATE TABLE IF NOT EXISTS imap_tests (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT,
-    imap_server VARCHAR(255) NOT NULL,
-    imap_port INT NOT NULL,
-    result VARCHAR(50),
-    details TEXT,
-    tested_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
-);
-
-CREATE TABLE IF NOT EXISTS port_scans (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT,
-    target_host VARCHAR(255) NOT NULL,
-    port INT NOT NULL,
-    status VARCHAR(50),
-    scanned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
-);
+-- Insert installation_date only if it does not already exist
+INSERT IGNORE INTO app_settings (setting_key, setting_value) VALUES ('installation_date', NOW());
