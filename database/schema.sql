@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS test_logs (
     test_result VARCHAR(20) NOT NULL,
     error_message TEXT,
     response_time INT,
-    test_timestamp VARCHAR(32) NOT NULL,
+    test_timestamp TIMESTAMP NOT NULL,
     ip_address VARCHAR(45),
     user_agent VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
