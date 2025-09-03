@@ -8,7 +8,7 @@
 .env.backup
 
 # Configuration files with sensitive data
-src/Config/config.php
+config.php
 
 # Composer dependencies
 /vendor/
@@ -33,7 +33,7 @@ composer.lock
 session_*
 
 # Database backups and dumps
-*.sql
+# *.sql
 *.dump
 backup.sql
 database_backup_*
