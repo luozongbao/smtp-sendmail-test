@@ -36,6 +36,8 @@ CREATE TABLE IF NOT EXISTS test_logs (
 -- Insert default application settings
 INSERT INTO app_settings (setting_key, setting_value) VALUES 
 ('installation_completed', 'false'),
-('app_version', '1.0.0'),
-('installation_date', NOW())
+('app_version', '1.0.0')
 ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value);
+
+-- Insert installation_date only if it does not already exist
+INSERT IGNORE INTO app_settings (setting_key, setting_value) VALUES ('installation_date', NOW());
