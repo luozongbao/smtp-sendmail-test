@@ -220,6 +220,7 @@ function handleConfigurationStep($data, $installer): array
             <header class="install-header">
                 <h1>SMTP Test Tool</h1>
                 <p><?= $isInstalled ? 'System Status' : 'Installation Wizard' ?></p>
+
             </header>
 
             <?php if (!empty($errors)): ?>
@@ -410,3 +411,4 @@ function handleConfigurationStep($data, $installer): array
     <script src="assets/js/install.js"></script>
 </body>
 </html>
+
