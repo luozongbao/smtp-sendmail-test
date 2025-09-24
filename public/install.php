@@ -14,11 +14,14 @@ $validator = new EmailValidator();
 $step = $_GET['step'] ?? 'requirements';
 $errors = [];
 $success = [];
+$hasEnv = file_exists(__DIR__ . '/../.env');
+$hasConfig = file_exists(__DIR__ . '/../src/config/config.php');
 
 // Check if already installed - check for both .env and config.php files
-$isInstalled = file_exists(__DIR__ . '/../.env') && file_exists(__DIR__ . '/../src/config/config.php');
-if ($isInstalled && $step !== 'complete') {
-    $step = 'already_installed';
+if ($hasEnv && $hasConfig && $step !== 'complete') {
+    $step = 'already_installed'; // ติดตั้งเรียบร้อย
+} elseif (($hasEnv && !$hasConfig) || (!$hasEnv && $hasConfig)) {
+    $step = 'install_failed'; // ติดตั้งไม่สมบูรณ์
 }
 
 // Handle form submissions
@@ -250,7 +253,14 @@ function handleConfigurationStep($data, $installer): array
                 </div>
             <?php endif; ?>
 
-            <?php if ($step === 'already_installed'): ?>
+            <?php if ($step === 'install_failed'): ?>
+                <div class="step-content">
+                    <h2>❌ Installation Failed</h2>
+                    <div class="alert alert-error">
+                        <p>Installation failed. Required configuration files are incomplete or missing.</p>
+                    </div>
+                </div>
+            <?php elseif ($step === 'already_installed'): ?>
                 <div class="step-content">
                     <h2>✅ Installation Complete</h2>
                     <div class="alert alert-success">
@@ -262,7 +272,6 @@ function handleConfigurationStep($data, $installer): array
                         <a href="index.php" class="btn btn-primary btn-large">🚀 Go to Main Page</a>
                     </div>
                 </div>
-
             <?php elseif ($step === 'requirements'): ?>
                 <div class="step-content">
                     <h2>System Requirements Check</h2>
