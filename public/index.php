@@ -21,19 +21,13 @@ if (isset($_GET['install_cleanup_failed']) && $_GET['install_cleanup_failed'] ==
 }
 
 // Check if installation is complete
-if (!file_exists(__DIR__ . '/../src/config/config.php')) {
-    // Check if install.php exists, otherwise check for backup
-    if (file_exists(__DIR__ . '/install.php')) {
-        header('Location: install.php');
-    } elseif (file_exists(__DIR__ . '/install.php.bak')) {
-        // Installation was completed but config file is missing
-        echo '<h1>Configuration Error</h1>';
-        echo '<p>Installation appears to have been completed, but configuration file is missing.</p>';
-        echo '<p>Please restore install.php.bak to install.php and run the installation again.</p>';
-    } else {
-        echo '<h1>Installation Required</h1>';
-        echo '<p>Please upload the installation files and run the installation wizard.</p>';
-    }
+
+$hasEnv = file_exists(__DIR__ . '/../.env');
+$hasConfig = file_exists(__DIR__ . '/../src/config/config.php');
+
+// Check if already installed - check for both .env and config.php files)
+if (!($hasEnv && $hasConfig))  {
+    header('Location: install.php');
     exit();
 }
 
