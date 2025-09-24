@@ -15,8 +15,8 @@ $step = $_GET['step'] ?? 'requirements';
 $errors = [];
 $success = [];
 
-// Check if already installed
-$isInstalled = file_exists(__DIR__ . '/../.env');
+// Check if already installed - check for both .env and config.php files
+$isInstalled = file_exists(__DIR__ . '/../.env') && file_exists(__DIR__ . '/../src/config/config.php');
 if ($isInstalled && $step !== 'complete') {
     $step = 'already_installed';
 }
@@ -252,32 +252,14 @@ function handleConfigurationStep($data, $installer): array
 
             <?php if ($step === 'already_installed'): ?>
                 <div class="step-content">
-                    <h2>✅ System Already Installed</h2>
+                    <h2>✅ Installation Complete</h2>
                     <div class="alert alert-success">
-                        <h3>Installation Status: Complete</h3>
+                        <h3>System Ready</h3>
                         <p>The SMTP Test Tool has been successfully installed and is ready to use.</p>
-                        <p>The system configuration file (<code>.env</code>) was found, indicating a completed installation.</p>
-                    </div>
-                    
-                    <div class="completion-info">
-                        <h3>Available Actions:</h3>
-                        <ul>
-                            <li><strong>Launch Application:</strong> Click the button below to access the main application</li>
-                            <li><strong>Reinstall:</strong> If you need to reinstall, delete the <code>.env</code> file and refresh this page</li>
-                            <li><strong>Backup:</strong> Consider backing up your current configuration before making changes</li>
-                        </ul>
-                        
-                        <h3>System Information:</h3>
-                        <ul>
-                            <li>Installation file: <code>install.php</code> (preserved for future use)</li>
-                            <li>Configuration file: <code>.env</code> (found)</li>
-                            <li>Status: Ready for use</li>
-                        </ul>
                     </div>
                     
                     <div class="step-actions">
-                        <a href="index.php" class="btn btn-primary btn-large">🚀 Launch SMTP Test Tool</a>
-                        <a href="?step=requirements&force_reinstall=1" class="btn btn-secondary" onclick="return confirm('Are you sure you want to reinstall? This will overwrite your current configuration.')">🔄 Force Reinstall</a>
+                        <a href="index.php" class="btn btn-primary btn-large">🚀 Go to Main Page</a>
                     </div>
                 </div>
 
@@ -400,14 +382,6 @@ function handleConfigurationStep($data, $installer): array
                     </div>
                     
                     <div class="completion-info">
-                        <h3>Important Security Notes:</h3>
-                        <ul>
-                            <li>The <code>install.php</code> file has been preserved for future use</li>
-                            <li>Make sure your <code>.env</code> file is not accessible from the web</li>
-                            <li>Consider setting up HTTPS for production use</li>
-                            <li>You can safely delete <code>install.php</code> after confirming everything works</li>
-                        </ul>
-                        
                         <h3>Next Steps:</h3>
                         <ul>
                             <li>Test your SMTP server configurations</li>
