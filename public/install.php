@@ -1,26 +1,9 @@
 <?php
 require_once __DIR__ . '/../vendor/autoload.php';
 
-use EmailTester\Classes\Installer;
-use EmailTester\Classes\EmailValidator;
-use EmailTester\Utils\SecurityUtils;
-
-// Handle installation file cleanup
-if (isset($_GET['cleanup']) && $_GET['cleanup'] === 'true') {
-    $currentFile = __FILE__;
-    $backupFile = __DIR__ . '/install.php.bak';
-    
-    // Rename the installation file
-    if (rename($currentFile, $backupFile)) {
-        // Redirect to the main application
-        header('Location: index.php');
-        exit;
-    } else {
-        // If rename fails, still redirect but show a message
-        header('Location: index.php?install_cleanup_failed=1');
-        exit;
-    }
-}
+use EmailTester\classes\Installer;
+use EmailTester\classes\EmailValidator;
+use EmailTester\utils\SecurityUtils;
 
 // Start secure session
 SecurityUtils::startSecureSession();
@@ -31,10 +14,14 @@ $validator = new EmailValidator();
 $step = $_GET['step'] ?? 'requirements';
 $errors = [];
 $success = [];
+$hasEnv = file_exists(__DIR__ . '/../.env');
+$hasConfig = file_exists(__DIR__ . '/../src/config/config.php');
 
-// Check if already installed
-if (file_exists(__DIR__ . '/../.env') && $step !== 'complete') {
-    $step = 'already_installed';
+// Check if already installed - check for both .env and config.php files
+if ($hasEnv && $hasConfig && $step !== 'complete') {
+    $step = 'already_installed'; // Installation completed successfully
+} elseif (($hasEnv && !$hasConfig) || (!$hasEnv && $hasConfig)) {
+    $step = 'install_failed'; // Installation incomplete
 }
 
 // Handle form submissions
@@ -232,7 +219,8 @@ function handleConfigurationStep($data, $installer): array
         <div class="install-wrapper">
             <header class="install-header">
                 <h1>SMTP Test Tool</h1>
-                <p>Installation Wizard</p>
+                <p><?= $isInstalled ? 'System Status' : 'Installation Wizard' ?></p>
+
             </header>
 
             <?php if (!empty($errors)): ?>
@@ -257,23 +245,34 @@ function handleConfigurationStep($data, $installer): array
                 </div>
             <?php endif; ?>
 
-            <div class="step-indicator">
-                <div class="step <?= $step === 'requirements' ? 'active' : ($step === 'database' || $step === 'configuration' || $step === 'complete' ? 'completed' : '') ?>">1. Requirements</div>
-                <div class="step <?= $step === 'database' ? 'active' : ($step === 'configuration' || $step === 'complete' ? 'completed' : '') ?>">2. Database</div>
-                <div class="step <?= $step === 'configuration' ? 'active' : ($step === 'complete' ? 'completed' : '') ?>">3. Configuration</div>
-                <div class="step <?= $step === 'complete' ? 'active' : '' ?>">4. Complete</div>
-            </div>
-
-            <?php if ($step === 'already_installed'): ?>
-                <div class="step-content">
-                    <h2>Already Installed</h2>
-                    <div class="alert alert-info">
-                        <p>The SMTP Test Tool appears to be already installed.</p>
-                        <p>If you want to reinstall, please delete the <code>.env</code> file and refresh this page.</p>
-                    </div>
-                    <a href="index.php" class="btn btn-primary">Go to Application</a>
+            <?php if (!$isInstalled): ?>
+                <div class="step-indicator">
+                    <div class="step <?= $step === 'requirements' ? 'active' : ($step === 'database' || $step === 'configuration' || $step === 'complete' ? 'completed' : '') ?>">1. Requirements</div>
+                    <div class="step <?= $step === 'database' ? 'active' : ($step === 'configuration' || $step === 'complete' ? 'completed' : '') ?>">2. Database</div>
+                    <div class="step <?= $step === 'configuration' ? 'active' : ($step === 'complete' ? 'completed' : '') ?>">3. Configuration</div>
+                    <div class="step <?= $step === 'complete' ? 'active' : '' ?>">4. Complete</div>
                 </div>
+            <?php endif; ?>
 
+            <?php if ($step === 'install_failed'): ?>
+                <div class="step-content">
+                    <h2>❌ Installation Failed</h2>
+                    <div class="alert alert-error">
+                        <p>Installation failed. Required configuration files are incomplete or missing.</p>
+                    </div>
+                </div>
+            <?php elseif ($step === 'already_installed'): ?>
+                <div class="step-content">
+                    <h2>✅ Installation Complete</h2>
+                    <div class="alert alert-success">
+                        <h3>System Ready</h3>
+                        <p>The SMTP Test Tool has been successfully installed and is ready to use.</p>
+                    </div>
+                    
+                    <div class="step-actions">
+                        <a href="index.php" class="btn btn-primary btn-large">🚀 Go to Main Page</a>
+                    </div>
+                </div>
             <?php elseif ($step === 'requirements'): ?>
                 <div class="step-content">
                     <h2>System Requirements Check</h2>
@@ -393,13 +392,6 @@ function handleConfigurationStep($data, $installer): array
                     </div>
                     
                     <div class="completion-info">
-                        <h3>Important Security Notes:</h3>
-                        <ul>
-                            <li>The <code>install.php</code> file will be automatically renamed for security when you launch the application</li>
-                            <li>Make sure your <code>.env</code> file is not accessible from the web</li>
-                            <li>Consider setting up HTTPS for production use</li>
-                        </ul>
-                        
                         <h3>Next Steps:</h3>
                         <ul>
                             <li>Test your SMTP server configurations</li>
@@ -409,7 +401,7 @@ function handleConfigurationStep($data, $installer): array
                     </div>
                     
                     <div class="step-actions">
-                        <a href="?cleanup=true" class="btn btn-primary btn-large">Launch SMTP Test Tool</a>
+                        <a href="index.php" class="btn btn-primary btn-large">Launch SMTP Test Tool</a>
                     </div>
                 </div>
             <?php endif; ?>
@@ -419,3 +411,4 @@ function handleConfigurationStep($data, $installer): array
     <script src="assets/js/install.js"></script>
 </body>
 </html>
+

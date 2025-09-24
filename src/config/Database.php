@@ -1,6 +1,6 @@
 <?php
 
-namespace EmailTester\Config;
+namespace EmailTester\config;
 
 use PDO;
 use PDOException;

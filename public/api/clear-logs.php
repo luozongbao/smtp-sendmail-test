@@ -11,9 +11,9 @@ header('Access-Control-Allow-Headers: Content-Type');
 
 require_once __DIR__ . '/../../vendor/autoload.php';
 
-use EmailTester\Config\Database;
-use EmailTester\Utils\SecurityUtils;
-use EmailTester\Utils\Logger;
+use EmailTester\config\Database;
+use EmailTester\utils\SecurityUtils;
+use EmailTester\utils\Logger;
 
 // Check if it's a POST request
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -49,7 +49,7 @@ try {
         throw new Exception('Configuration file not found');
     }
     
-    require_once __DIR__ . '/../../src/Config/config.php';
+    require_once __DIR__ . '/../../src/config/config.php';
 
     // Connect to database
     $pdo = new PDO(

@@ -420,10 +420,34 @@ class SMTPTestTool {
         let html = '';
         logs.forEach(log => {
             const logClass = this.getLogClass(log.status);
-            const timestamp = new Date(log.created_at).toLocaleString();
+            
+            // Parse UTC timestamp and convert to browser local time
+            let timestamp, utcTime, localTime, timezoneInfo;
+            if (log.created_at_utc) {
+                // Parse as UTC timestamp and convert to local time
+                const utcDate = new Date(log.created_at_utc + ' UTC');
+                localTime = utcDate.toLocaleString();
+                utcTime = log.created_at_utc + ' UTC';
+                
+                // Get timezone information
+                const timezoneName = Intl.DateTimeFormat().resolvedOptions().timeZone;
+                const timezoneOffset = utcDate.getTimezoneOffset();
+                const offsetHours = Math.floor(Math.abs(timezoneOffset) / 60);
+                const offsetMinutes = Math.abs(timezoneOffset) % 60;
+                const offsetSign = timezoneOffset <= 0 ? '+' : '-';
+                timezoneInfo = `${timezoneName} (UTC${offsetSign}${offsetHours.toString().padStart(2, '0')}:${offsetMinutes.toString().padStart(2, '0')})`;
+                
+                timestamp = localTime;
+            } else {
+                // Fallback to the old format
+                timestamp = new Date(log.created_at).toLocaleString();
+                utcTime = log.created_at;
+                localTime = timestamp;
+                timezoneInfo = 'Local time';
+            }
             
             html += `<div class="log-entry ${logClass}">`;
-            html += `<div class="log-timestamp">${timestamp}</div>`;
+            html += `<div class="log-timestamp" title="UTC: ${utcTime}\nLocal: ${localTime}\nTimezone: ${timezoneInfo}">${timestamp}</div>`;
             html += `<div class="log-message">`;
             html += `<strong>${this.escapeHtml(log.test_type)}</strong> - ${this.escapeHtml(log.target_host)}:${log.target_port}<br>`;
             html += `Status: <span class="status-indicator ${logClass}">${this.escapeHtml(log.status)}</span><br>`;

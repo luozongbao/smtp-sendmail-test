@@ -1,6 +1,6 @@
 <?php
 
-namespace EmailTester\Classes;
+namespace EmailTester\classes;
 
 class EmailValidator
 {

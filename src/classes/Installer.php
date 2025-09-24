@@ -1,8 +1,8 @@
 <?php
 
-namespace EmailTester\Classes;
+namespace EmailTester\classes;
 
-use EmailTester\Config\Database;
+use EmailTester\config\Database;
 use PDO;
 use PDOException;
 
@@ -163,7 +163,7 @@ class Installer
 
             // Create config.php file
             $configContent = $this->generateConfigContent($config);
-            $configPath = __DIR__ . '/../Config/config.php';
+            $configPath = __DIR__ . '/../config/config.php';
             
             if (file_put_contents($configPath, $configContent)) {
                 $result['files_created'][] = 'config.php';
@@ -238,7 +238,7 @@ class Installer
             
             $logFile = $logDir . '/application.log';
             if (!file_exists($logFile)) {
-                file_put_contents($logFile, "Installation completed at " . date('Y-m-d H:i:s') . "\n");
+                file_put_contents($logFile, "Installation completed at " . \EmailTester\utils\SecurityUtils::getUTCTimestamp() . " UTC\n");
                 chmod($logFile, 0644);
                 $result['steps_completed'][] = 'Log file initialized';
             }
@@ -337,7 +337,7 @@ class Installer
     {
         $paths = [
             'logs' => __DIR__ . '/../../logs',
-            'config' => __DIR__ . '/../Config',
+            'config' => __DIR__ . '/../config',
             'root' => __DIR__ . '/../..'
         ];
 

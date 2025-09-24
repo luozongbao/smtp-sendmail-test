@@ -7,10 +7,9 @@
  */
 
 require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/../src/Config/config/database.php';
 
-use EmailTester\Utils\SecurityUtils;
-use EmailTester\Utils\Logger;
+use EmailTester\utils\SecurityUtils;
+use EmailTester\utils\Logger;
 
 // Initialize security and logging
 $logger = new Logger();
@@ -22,7 +21,7 @@ if (isset($_GET['install_cleanup_failed']) && $_GET['install_cleanup_failed'] ==
 }
 
 // Check if installation is complete
-if (!file_exists(__DIR__ . '/../src/Config/config.php')) {
+if (!file_exists(__DIR__ . '/../src/config/config.php')) {
     // Check if install.php exists, otherwise check for backup
     if (file_exists(__DIR__ . '/install.php')) {
         header('Location: install.php');
@@ -39,7 +38,7 @@ if (!file_exists(__DIR__ . '/../src/Config/config.php')) {
 }
 
 // Load configuration
-require_once __DIR__ . '/../src/Config/config.php';
+require_once __DIR__ . '/../src/config/config.php';
 
 // Start session and validate CSRF token if POST request
 session_start();

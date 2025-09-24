@@ -31,11 +31,11 @@ function outputJSON($data, $statusCode = 200) {
 
 require_once __DIR__ . '/../../vendor/autoload.php';
 
-use EmailTester\Classes\PortScanner;
-use EmailTester\Classes\EmailValidator;
-use EmailTester\Utils\SecurityUtils;
-use EmailTester\Utils\Logger;
-use EmailTester\Config\Database;
+use EmailTester\classes\PortScanner;
+use EmailTester\classes\EmailValidator;
+use EmailTester\utils\SecurityUtils;
+use EmailTester\utils\Logger;
+use EmailTester\config\Database;
 
 // Load database configuration from .env file
 function loadDatabaseConfig() {
