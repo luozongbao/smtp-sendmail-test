@@ -21,7 +21,7 @@ $hasConfig = file_exists(__DIR__ . '/../src/config/config.php');
 if ($hasEnv && $hasConfig && $step !== 'complete') {
     $step = 'already_installed'; // Installation completed successfully
 } elseif (($hasEnv && !$hasConfig) || (!$hasEnv && $hasConfig)) {
-    $step = 'install_failed'; // ติดตั้งไม่สมบูรณ์
+    $step = 'install_failed'; // Installation incomplete
 }
 
 // Handle form submissions
