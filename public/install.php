@@ -19,7 +19,7 @@ $hasConfig = file_exists(__DIR__ . '/../src/config/config.php');
 
 // Check if already installed - check for both .env and config.php files
 if ($hasEnv && $hasConfig && $step !== 'complete') {
-    $step = 'already_installed'; // ติดตั้งเรียบร้อย
+    $step = 'already_installed'; // Installation completed successfully
 } elseif (($hasEnv && !$hasConfig) || (!$hasEnv && $hasConfig)) {
     $step = 'install_failed'; // ติดตั้งไม่สมบูรณ์
 }
